@@ -1,0 +1,4 @@
+This work is based on parts from icecat2erp, changing from mysql to mongo due to the fact that product data is more like a document than a relational model.
+
+so you will likely find many fragments from the initial mysql-based work.
+

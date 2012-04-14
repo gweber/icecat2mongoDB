@@ -1,6 +1,6 @@
 <?php
 
-@include "config.inc.php"
+include "config.inc.php";
 
 $context = stream_context_create(array(
 	'http' => array(

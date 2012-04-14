@@ -1,14 +1,14 @@
 <?php
 
-$icecat_user 	=	"username"
-$icecat_pass 	=	"password"
+$icecat_user 	=	"username";
+$icecat_pass 	=	"password";
 $iceurl		=	"http://data.Icecat.biz/export/freexml/DE/";	
 $daily_url 	= 	"http://data.Icecat.biz/export/freexml/daily.index.xml";
 
 //$iceurl 	= 	"http://data.icecat.biz/export/level4/DE/"; 	// url to fetch xml-file if you have a content plan
 //$daily_url 	= 	"http://data.icecat.biz/export/level4/daily.index.xml"; 	// url to fetch xml-file if you have a content plan
 
-$xmlstorage 	=	"/path/to/xmlstorage/"
+$xmlstorage 	=	"/path/to/xmlstorage/";
 $dailyxmlstorage 	=	"/path/to/xmlstorage/daily/";
 
 ?>

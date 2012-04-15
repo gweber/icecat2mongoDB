@@ -21,8 +21,7 @@ $i = 0;
 foreach ($line_array as $line => $linestr){
 	if ( $i++ == 0) { continue; }	// skip first line (header)
 	$fields = explode("\t",$linestr);
-	var_dump($fields);
-	
+		
 	$manufacturer = array();
 	$manufacturer[icecat_id]	=	(int) $fields[0];
 	$manufacturer[name] 		=	trim($fields[2]);

@@ -53,9 +53,9 @@ function getDaily() {
 	global $icecat_user, $icecat_pass, $daily_url, $dailyxmlstorage;	
 	
 	$context = stream_context_create(array(
-		'http' => array(
-			'header'  => "Authorization: Basic " . base64_encode("$icecat_user:$icecat_pass") . 
-				"\nAccept-Encoding: gzip\n" 
+		'http' => array( 'header'  =>
+			"Authorization: Basic " . base64_encode("$icecat_user:$icecat_pass") . "\n" . 
+			"Accept-Encoding: gzip\n" 
 		)
 	));
 	
@@ -87,7 +87,7 @@ if ($file_str = getDaily()){
 			if ($index == "@attributes"){
 				
 				$product[id] 		= 	(int) $value['Product_ID'];
-				$product[supplier] 	= 	(int) $value['Supplier_id'];
+				$product[manufacturer] 	= 	(int) $value['Supplier_id'];
 				$product[cat_id]	=	(int) $value['Catid'];
 				$product[sku] 		= 	$value['Prod_ID'];
 				$product[name]	= 	$value['Model_Name'];
@@ -98,7 +98,7 @@ if ($file_str = getDaily()){
 					$delete++;
 					
 					$mdb_product->update(
-						array( 'product_id' => $product[id] ),  
+						array( 'icecat_id' => $product[id] ),  
 						array(
 							'$set' => array(
 								'status' => (int) 4,  
@@ -126,12 +126,12 @@ if ($file_str = getDaily()){
 					// quality is ice or supplier
 					
 					// product not found (new?)
-					if  ( !$f_product = $mdb_product->findOne( array('product_id' => (int)$product[id]  ) ) ) {
+					if  ( !$f_product = $mdb_product->findOne( array('icecat_id' => (int)$product[id]  ) ) ) {
 						$mdb_product->insert(array (
-							'product_id' 	=> 	(int) $product[id],
+							'icecat_id' 	=> 	(int) $product[id],
 							'status' 		=> 	(int) 5, 
 							'actor' 		=> 	'daily checker insert', 
-							'supplier_id'	=>	(int) $product[supplier],
+							'manufacturer_id'	=>	(int) $product[manufacturer],
 							'product_sku'	=>	$product[sku],
 							'update'		=> 	new MongoDate(), 
 							'data_quality'	=>	$value[Quality],
@@ -143,11 +143,11 @@ if ($file_str = getDaily()){
 						debug(1,"$product[id] inserted and marked for fetch\n");
 					} else {
 						$mdb_product->update(
-							array('product_id' => (int) $product[id] ),  
+							array('icecat_id' => (int) $product[id] ),  
 							array('$set' => array(
 									'status' 		=> 	(int) 5, 
 									'actor' 		=> 	'daily checker update', 
-									'supplier_id'	=>	(int) $product[supplier],
+									'manufacturer_id'	=>	(int) $product[manufacturer],
 									'product_sku'	=>	$product[sku],
 									'update'		=> 	new MongoDate(), 
 									'data_quality'	=>	$value[Quality],

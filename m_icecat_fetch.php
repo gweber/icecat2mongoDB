@@ -3,9 +3,9 @@
 include "config.inc.php";
 
 $context = stream_context_create(array(
-	'http' => array(
-		'header'  => "Authorization: Basic " . base64_encode("$icecat_user:$icecat_pass") . "\n" . 
-			"Accept-Encoding: gzip\n" 
+	'http' => array('header'  => 
+		"Authorization: Basic " . base64_encode("$icecat_user:$icecat_pass") . "\n" . 
+		"Accept-Encoding: gzip\n" 
 	)
 ));
 
@@ -16,14 +16,14 @@ $mdb_product = $mdb->product;
 
 while (1){
 	// high prio fetch first
-	if (! $db_product = $mdb_product->findOne(array( 'status' => 5, 'product_id'	=> array( '$gt' => 1) ) ) ) {
+	if (! $db_product = $mdb_product->findOne(array( 'status' => 5, 'icecat_id'	=> array( '$gt' => 1) ) ) ) {
 		// normal fetch
-		if (! $db_product = $mdb_product->findOne(array( 'status' => 1, 'product_id'	=> array( '$gt' => 1) ) ) ) {
+		if (! $db_product = $mdb_product->findOne(array( 'status' => 1, 'icecat_id'	=> array( '$gt' => 1) ) ) ) {
 			// nothing to do? weird
 			exit("done\n");
 		}
 	}
-	$id = $db_product['product_id'];
+	$id = $db_product['icecat_id'];
 	//var_dump($db_product);
 	echo "$id => ";
 	
@@ -51,7 +51,7 @@ while (1){
 			}
 		}
 		$mdb_product->update(
-				array('product_id' => $id),  
+				array('icecat_id' => $id),  
 				array('$set' => array('status' => (int) $status,  'actor' => 'file fetcher', 'update' => new MongoDate() ) ) 
 		);
 	} // if id

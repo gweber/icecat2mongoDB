@@ -14,7 +14,7 @@ $mongo = new Mongo();
 $mdb = $mongo->icecat;
 $mdb_manufacturer = $mdb->manufacturer;
 
-$manufacturer_file = file_get_contents("/home/gweber/Desktop/icecat/supplier.txt");
+$manufacturer_file = file_get_contents("supplier.txt");
 
 $line_array = explode("\n",$manufacturer_file);
 $i = 0;
@@ -44,12 +44,10 @@ foreach ($line_array as $line => $linestr){
 	}
 	
 	echo $mdb_manufacturer->update(
-				array('icecat_id' => $manufacturer[manufacturer_id]),  
-				array('$set' => $manufacturer ),
-				array('upsert' => true)
+				array('icecat_id' 	=> $manufacturer[manufacturer_id]),  
+				array('$set' 		=> $manufacturer ),
+				array('upsert' 		=> true)
 	);
-	
-	echo "\n";
 }
 
 

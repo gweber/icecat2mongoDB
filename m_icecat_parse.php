@@ -215,7 +215,7 @@ while(1){
 				
 				$product_family_id = $xml_array["Product"]["ProductFamily"]["@attributes"]["ID"];
 				if (strlen($product_family_id)){
-					debug(1,"product family: $product_family_id\n");
+					//debug(1,"product family: $product_family_id\n");
 					$update_array[product_family] = (int) $product_family_id;
 				}
 				foreach ($xml_array["Product"]["EANCode"] as $k => $v){
@@ -260,7 +260,7 @@ while(1){
 						}
 					}
 				} else {
-					debug(1,"no description available\n"); // yeah sad but true
+					//debug(1,"no description available\n"); // yeah sad but true
 				}
 				/*
 				$delarray = array();
@@ -290,7 +290,7 @@ while(1){
 				);
 				if ($debug){
 					//var_dump($update_array);
-					echo "\n\nnext product\n";
+					echo "next product\n";
 				} else {
 					echo "$id parsed\n";
 				}
@@ -304,6 +304,7 @@ while(1){
 					array('icecat_id' => $id),  
 					array('$set' => array('status' => (int) 5 ) ) 
 				);
+				debug(1,echocolor("$id marked for refetch\n","red",1));
 
 			}
 			$wait = fgets(STDIN);
@@ -316,6 +317,7 @@ while(1){
 				array('icecat_id' => $id),  
 				array('$set' => array('status' => (int) 5 ) )
 			);
+			debug(1,echocolor("$id marked for refetch\n","red",1));
 		}// count xml array
 
 	} else {

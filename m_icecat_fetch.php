@@ -19,7 +19,7 @@ while (1){
 	if (! $db_product = $mdb_product->findOne(array( 'status' => 5, 'icecat_id'	=> array( '$gt' => 1) ) ) ) {
 		// normal fetch
 		if (! $db_product = $mdb_product->findOne(array( 'status' => 1, 'icecat_id'	=> array( '$gt' => 1) ) ) ) {
-			// nothing to do? weird
+			// nothing to do? cool, let's party
 			exit("done\n");
 		}
 	}
@@ -50,9 +50,14 @@ while (1){
 				$status = 2;
 			}
 		}
+		$history = array();
+		$history[$db_product['update']->sec] = array('actor' =>$db_product['actor'], 'status' =>$db_product['status'] );
 		$mdb_product->update(
 				array('icecat_id' => $id),  
-				array('$set' => array('status' => (int) $status,  'actor' => 'file fetcher', 'update' => new MongoDate() ) ) 
+				array(
+					'$set' => array('status' => (int) $status,  'actor' => 'file fetcher', 'update' => new MongoDate() ),
+					'$addToSet'	=> array ('history' => $history)					
+				) 
 		);
 	} // if id
 $wait = fgets(STDIN);

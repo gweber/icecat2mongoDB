@@ -141,7 +141,9 @@ while(1){
 			'status' => 10, 
 			//'icecat_id' => array('$gt' => $lastid) 
 		))){
-
+		$history = array();
+		$history[$db_product_array['update']->sec] = array('actor' =>$db_product_array['actor'], 'status' =>$db_product_array['status'] );
+		
 		$id = $db_product_array['icecat_id'];
 		$lastid=$id;
 		//debug(1,"$id " . $db_product_array[name] ." loaded from mongoDB\n");
@@ -372,7 +374,10 @@ while(1){
 				
 				$mdb_product->update(
 						array('icecat_id' => $id),  
-						array('$set' => $update_array ),
+						array(
+							'$set' 		=> $update_array,
+							'$addToSet'	=> array('history' => $history)							
+						),
 						array('upsert' => true)
 				);
 				if ($debug){
@@ -389,7 +394,10 @@ while(1){
 				}
 				$mdb_product->update(
 					array('icecat_id' => $id),  
-					array('$set' => array('status' => (int) 5 ) ) 
+					array(
+						'$set' 		=> array('status' => (int) 5, 'actor' => 'parser no product array' ) ,
+						'$addToSet'	=> array('history' => $history)
+					) 
 				);
 				debug(1,echocolor("$id marked for refetch\n","red",1));
 
@@ -402,7 +410,10 @@ while(1){
 			}
 			$mdb_product->update(
 				array('icecat_id' => $id),  
-				array('$set' => array('status' => (int) 5 ) )
+				array(
+					'$set' 		=> array('status' => (int) 5, 'actor' => 'parser error on xml' ) ,
+					'$addToSet'	=> array('history' => $history)				
+				)
 			);
 			debug(1,echocolor("$id marked for refetch\n","red",1));
 		}// count xml array

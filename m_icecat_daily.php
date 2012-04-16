@@ -93,76 +93,41 @@ if ($file_str = getDaily()){
 				$product[name]	= 	$value['Model_Name'];
 				$product[topseller]	=	(int) $value['Product_View'];
 				
-				if ( $value['Quality'] == 'REMOVED' ) {
-					
-					$delete++;
-					
-					$mdb_product->update(
-						array( 'icecat_id' => $product[id] ),  
-						array(
-							'$set' => array(
-								'status' => (int) 4,  
-								'actor' => 'daily checker remove',
-								'data_quality'	=>	'REMOVED',
-								'update' => new MongoDate()
-							) 
-						) 
-					); 
-					
-					//$del_q = mysql_query("delete from product_feature where product_id in ($alldelete_str)");
-					//$del_q = mysql_query("delete from product_description where product_id in ($alldelete_str)");
-					//echo "REMOVE: ". mysql_affected_rows($del_q) . " descriptions deleted\n";
-	
-					// delete related product if it's removed, keep them if not
-					//$del_q = mysql_query("delete from product_related where rel_product_id in ($remove_str)");
-					//echo "REMOVE: ". mysql_affected_rows($del_q) . " to-relations  deleted\n";
-					
-					// delete all relations from the products, removed or reset; on reset, it will be read and parsed afterwards
-					//mysql_query("delete from product_related where product_id in ($alldelete_str)");
-					//echo "REMOVE: ". mysql_affected_rows($del_q) . " from-relations deleted\n";
-					
-				}else {
-					
-					// quality is ice or supplier
-					
-					// product not found (new?)
-					if  ( !$f_product = $mdb_product->findOne( array('icecat_id' => (int)$product[id]  ) ) ) {
-						$mdb_product->insert(array (
-							'icecat_id' 	=> 	(int) $product[id],
-							'status' 		=> 	(int) 5, 
-							'actor' 		=> 	'daily checker insert', 
-							'manufacturer_id'	=>	(int) $product[manufacturer],
-							'product_sku'	=>	$product[sku],
-							'update'		=> 	new MongoDate(), 
-							'data_quality'	=>	$value[Quality],
-							'category'		=>	(int) $product[cat_id],
-							'name'		=>	$product[name],
-							'topseller'		=>	$product[topseller]
-							)    
-						);
-						debug(1,"$product[id] inserted and marked for fetch\n");
-					} else {
-						$mdb_product->update(
-							array('icecat_id' => (int) $product[id] ),  
-							array('$set' => array(
-									'status' 		=> 	(int) 5, 
-									'actor' 		=> 	'daily checker update', 
-									'manufacturer_id'	=>	(int) $product[manufacturer],
-									'product_sku'	=>	$product[sku],
-									'update'		=> 	new MongoDate(), 
-									'data_quality'	=>	$value[Quality],
-									'category'		=>	(int) $product[cat_id],
-									'name'		=>	$product[name],
-									'topseller'		=>	$product[topseller]
-								) 
-							) 
-						);
-						// delete makes no sense if there was no product in db
-						deleteFile($product[id]);
-						debug(1,"$product[id] marked for revalidation\n");
-					}
-					
+				$history = array();
+				if ( $f_product = $mdb_product->findOne( array('icecat_id' => (int)$product[id]  )) ){
+					$history[$f_product['update']->sec] = array('actor' =>$f_product['actor'], 'status' =>$f_product['status'] );
 				}
+				
+				$update = array();
+				if ( $value['Quality'] == 'REMOVED' ) {
+					// just mark as remove, keep file for dont know right now
+					$update['status']		= 	(int) 4;
+					$update['actor']		=	'daily checker';
+					$update['data_quality']	=	'REMOVED';
+					debug(1,"$product[id] removed\n");
+				}else {
+					$update['icecat_id'] 		=	(int) $product[id] );
+					$update['status']		= 	(int) 5;	// mark for high prio refetch
+					$update['actor']		=	'daily checker';
+					$update['data_quality']	=	$value[Quality];
+					$update['manufacturer_id']	=	(int) $product[manufacturer];
+					$update['product_sku']	=	$product[sku];
+					$update['update']		= 	new MongoDate();
+					$update['category']		=	(int) $product[cat_id];
+					$update['name']		=	$product[name];
+					$update['topseller']		=	$product[topseller];
+					
+					deleteFile($product[id]);
+					debug(1,"$product[id] marked for refetch\n");
+				}
+				$mdb_product->update(
+					array('icecat_id' => (int) $product[id] ),  
+					array(
+						'$addToSet'	=> array ('history' => $history), 
+						'$set' 		=> $update
+						) ,
+					array('upsert'	=> true)
+				);
 			}
 		}		
 	}

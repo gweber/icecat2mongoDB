@@ -144,7 +144,7 @@ while(1){
 
 		$id = $db_product_array['icecat_id'];
 		$lastid=$id;
-		debug(1,"$id " . $db_product_array[name] ." loaded from mongoDB\n");
+		//debug(1,"$id " . $db_product_array[name] ." loaded from mongoDB\n");
 		$product_array = array();
 		$xml_array = array();
 		$xml_array = getFile($id);
@@ -262,6 +262,93 @@ while(1){
 				} else {
 					//debug(1,"no description available\n"); // yeah sad but true
 				}
+				
+				foreach ($xml_array["Product"]["CategoryFeatureGroup"] as $k => $v){
+					$cfg_id = $v['@attributes']['ID'];
+					$fg[cfg_No] = $v['@attributes']['No'];
+					$fg[id] =  $v['FeatureGroup']['@attributes']['ID'];
+					$fg[value] =  $v['FeatureGroup']['Name']['@attributes']['Value'];
+					$fg[langid] =  $v['FeatureGroup']['Name']['@attributes']['langid'];
+					$fg[nameid]=  $v['FeatureGroup']['Name']['@attributes']['ID'];
+					$cfg_array[$cfg_id] = $fg;
+				}
+				
+				/*
+				foreach ($xml_array["Product"]["ProductFeature"] as $k => $v) {
+					if ( !strlen($v['@attributes']['Value'])) { $v['@attributes']['Value'] = $v['@attributes']['Presentation_Value']; }
+					if ( strlen($v['@attributes']['Value'])){
+						update_db('product_feature', $v['@attributes']['ID'], array(
+							"product_id"			=>	$id,
+							"category_feature_id"	=> 	$v['@attributes']['CategoryFeature_ID'],
+							"value"				=>	$v['@attributes']['Value']),
+							'', 1
+						);
+						
+						$feature[id]			= $v['Feature']['@attributes']['ID'];
+						$feature[name_id]		= $v['Feature']['Name']['@attributes']['ID'];
+						$feature[name_langid]	= $v['Feature']['Name']['@attributes']['langid'];
+						$feature[name_value]	= $v['Feature']['Name']['@attributes']['Value'];
+						$feature[measure_id] 	= $v['Feature']['Measure']['@attributes']['ID'];
+						
+						if (strlen($feature[id])){
+							if (!$checked[f][$feature[id]]){
+								if ( $feature_query = mydb_query("select feature_id,sid from feature where feature_id = '$feature[id]'",1) ){
+									$sid=$feature_query[1];
+								}
+								voc_check($feature[name_id], $sid, $feature[name_langid], $feature[name_value]);
+								$checked[f][$feature[id]]=1;
+							}
+							// feature_group
+							$cfg[id] = $v['@attributes']['CategoryFeatureGroup_ID'];
+							$cfg[no] = $cfg_array[$cfg[id]]['cfg_No'];
+							$cf[id] = $v['@attributes']['CategoryFeature_ID'];
+							$fg[id] = $cfg_array[$cfg[id]][id];
+							if (strlen($fg[id]) ){
+								
+								if ( !$checked[fg][$fg[id]]) {
+									if ( $fg_query = mydb_query("select feature_group_id, sid from feature_group where feature_group_id = '$fg[id]'",1) ) {
+										$sid = $fg_query[1];
+									} else  {
+										$sid = getsid();
+										mydb_query("insert into feature_group_id, sid) values ($fg[id], $sid)",1);
+										debug(1, echocolor("feature_group inserted $fg[id], $sid\n", 'red', 1) );
+									}
+									voc_check($cfg_array[$cfg[id]][nameid], $sid, $cfg_array[$cfg[id]][langid], $cfg_array[$cfg[id]][value]);
+									$checked[fg][$fg[id]]=1;
+								}
+								if (strlen($cfg[id])){
+									if (!$checked[cfg][$cfg[id]]){
+										update_db('category_feature_group', $cfg[id], 
+											array(
+												"catid"			=>	$cat_id,
+												"No" 			=> 	$cfg[no],
+												"feature_group_id"	=>	$fg[id]
+											),'',1);
+										$checked[cfg][$cfg[id]] = 1;	
+									}
+									
+									
+									if (strlen($cf[id])){
+										if ( !$checked[cf][$cf[id]]) {
+											update_db('category_feature', $cf[id], 
+												array(
+													"feature_id"				=>	$feature[id],
+													"catid"					=>	$cat_id,
+													"no"						=>	$v['@attributes']['No'],
+													"searchable"				=>	$v['@attributes']['Searchable'],
+													"category_feature_group_id"	=>	$cfg[id],
+													"mandatory"				=>	$v['@attributes']['Mandatory']
+												), '', 1);
+											$checked[cf][$cf[id]] = 1;
+										}
+									} // cf id
+								} // cfg id
+							}//fg id
+						} // feature id
+					} // strlen feature value
+				}
+				*/
+				
 				/*
 				$delarray = array();
 				$ignore_fields = array("copid","prices","topseller");
@@ -290,9 +377,9 @@ while(1){
 				);
 				if ($debug){
 					//var_dump($update_array);
-					echo "next product\n";
+					//echo "next product\n";
 				} else {
-					echo "$id parsed\n";
+					//echo "$id parsed\n";
 				}
 				
 			} else {// product array	

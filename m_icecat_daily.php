@@ -95,7 +95,7 @@ if ($file_str = getDaily()){
 				
 				$history = array();
 				if ( $f_product = $mdb_product->findOne( array('icecat_id' => (int)$product[id]  )) ){
-					$history[$f_product['update']->sec] = array('actor' =>$f_product['actor'], 'status' =>$f_product['status'] );
+					$history[$f_product['update']->sec] = array('actor' =>$f_product['actor'], 'status' =>$f_product['status'], 'topseller' => $f_product['topseller'] );
 				}
 				
 				$update = array();
@@ -106,7 +106,7 @@ if ($file_str = getDaily()){
 					$update['data_quality']	=	'REMOVED';
 					debug(1,"$product[id] removed\n");
 				}else {
-					$update['icecat_id'] 		=	(int) $product[id] );
+					$update['icecat_id'] 		=	(int) $product[id] ;
 					$update['status']		= 	(int) 5;	// mark for high prio refetch
 					$update['actor']		=	'daily checker';
 					$update['data_quality']	=	$value[Quality];

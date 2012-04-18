@@ -1,13 +1,12 @@
-<h2>Framwork for local product-database</h2>
+Framwork for local product-database
+-----------------------------------
+
 This framework is based on top of icecat.biz, who offer a great database with product information. as smb-retailer, we needed this information to pimp our data.
 So this is how it works:
-<ul>
-<li>the base stock is build on the data from data-prod-stat.xml, which is offered by icecat, status 1</li>
-<li>the icecat_fetch.php take a status 1 or 5 entry from db, fetches the xml(.gz), saves it locally and sets the status to 10 on success, to 2 if it fails. 5 is taken first, so there is some kind of prioritized fetch.</li>
-<li>the icecat_parser.php loads a status 10 entry from db, takes the file and parses most data from it. sets the status to 20 on success, to 5 on fail. on 5, it deletes the xml also.</li>
-<li>the daily-script loads the daily-changes, marks files as 4 if they are deleted on icecat, to 5 with deletion of xml-file for refetch if something has changed.</li>
-</ul>
-
+	* the base stock is build on the data from data-prod-stat.xml, which is offered by icecat, status 1
+	* the icecat_fetch.php take a status 1 or 5 entry from db, fetches the xml(.gz), saves it locally and sets the status to 10 on success, to 2 if it fails. 5 is taken first, so there is some kind of prioritized fetch.
+	* the icecat_parser.php loads a status 10 entry from db, takes the file and parses most data from it. sets the status to 20 on success, to 5 on fail. on 5, it deletes the xml also.
+	* the daily-script loads the daily-changes, marks files as 4 if they are deleted on icecat, to 5 with deletion of xml-file for refetch if something has changed.
 
 so you will likely find many fragments from the initial mysql-based work.
 
